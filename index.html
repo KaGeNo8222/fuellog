@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>FuelLog</title>
+  <meta name="description" content="บันทึกการเติมน้ำมัน">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="FuelLog">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="theme-color" content="#eaf5ec" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0e141b" media="(prefers-color-scheme: dark)">
+  <link rel="preload" href="fonts/sarabun-400-thai.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a href="#home" id="back" class="icon-btn" aria-label="ย้อนกลับ" hidden>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <div id="brand" class="brand">
+      <img src="icon-192.png" alt="" width="44" height="44">
+      <div>
+        <div class="brand-name">FuelLog</div>
+        <div class="brand-sub">บันทึกการเติมน้ำมัน</div>
+      </div>
+    </div>
+    <h1 id="title" hidden></h1>
+    <button type="submit" form="entry-form" id="head-save" class="head-save" hidden>บันทึก</button>
+    <a href="#settings" id="gear" class="icon-btn" aria-label="ตั้งค่า">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    </a>
+  </header>
+
+  <main>
+    <button type="button" id="update-banner" class="banner update" hidden>มีเวอร์ชันใหม่ แตะเพื่อโหลด</button>
+
+    <!-- Dashboard -->
+    <section id="view-home" class="view">
+      <div id="backup-banner" class="banner" hidden>
+        <span id="backup-banner-text"></span>
+        <a href="#settings">สำรองเลย</a>
+      </div>
+      <p id="home-period" class="period"></p>
+      <div id="home-body">
+        <div class="tiles" id="home-tiles"></div>
+        <div class="card">
+          <div class="card-head">
+            <h2 class="card-title">ประวัติการเติมน้ำมัน</h2>
+            <a href="#history" class="more">ดูทั้งหมด ›</a>
+          </div>
+          <ul class="rows" id="home-recent"></ul>
+        </div>
+      </div>
+      <div id="home-empty" class="empty" hidden>
+        <p class="empty-title">ยังไม่มีข้อมูล</p>
+        <p>เริ่มบันทึกการเติมครั้งแรกได้จากปุ่มด้านล่าง<br>หรือนำเข้าข้อมูลที่จดไว้ในโน้ตได้ที่ <a href="#settings">ตั้งค่า</a></p>
+      </div>
+      <a href="#add" class="btn btn-big">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
+        บันทึกการเติมน้ำมัน
+      </a>
+    </section>
+
+    <!-- Add / edit entry -->
+    <section id="view-add" class="view" hidden>
+      <form id="entry-form" class="form-page" novalidate autocomplete="off">
+        <p id="form-error" class="form-error" role="alert" hidden></p>
+        <!-- Typed every time, in the order the keyboard's next arrow visits them -->
+        <div class="group">
+          <label class="field"><span>ระยะทาง</span><input name="km" inputmode="decimal" placeholder="ตามเลขทริป"><em>กม.</em></label>
+          <label class="field"><span>จำนวนเงิน</span><input name="amount" inputmode="decimal" placeholder="0"><em>บาท</em></label>
+          <label class="field"><span>ราคา</span><input name="price" inputmode="decimal" placeholder="0.00"><em>บ./ลิตร</em></label>
+          <label class="field"><span>ปริมาณ</span><input name="liters" inputmode="decimal" placeholder="คำนวณให้"><em>ลิตร</em></label>
+        </div>
+        <p class="hint">ราคาเติมจากครั้งก่อนไว้ให้ ลิตรคำนวณให้อัตโนมัติ ถ้าไม่ตรงหน้าตู้แก้ได้</p>
+        <div class="preview" aria-live="polite">
+          <div><strong id="pv-kpl">–</strong><span>กม./ลิตร</span></div>
+          <div><strong id="pv-bpk">–</strong><span>บาท/กม.</span></div>
+          <p id="pv-check" class="pv-check" hidden></p>
+        </div>
+        <!-- Prefilled; rarely changed -->
+        <h2 class="section-title">รายละเอียดอื่น</h2>
+        <div class="group">
+          <label class="field"><span>ชนิดน้ำมัน</span><select name="fuel"></select></label>
+          <label class="field"><span>วันที่</span><input type="date" name="date"></label>
+          <label class="field"><span>หมายเหตุ</span><input name="note" placeholder="ไม่บังคับ" maxlength="80" enterkeyhint="done"></label>
+        </div>
+        <button type="submit" id="save-entry" class="btn btn-big">บันทึก</button>
+        <a href="#history" id="cancel-edit" class="btn btn-big secondary" hidden>ยกเลิก</a>
+        <button type="button" id="delete-entry" class="btn danger-outline" hidden>ลบรายการนี้</button>
+      </form>
+    </section>
+
+    <!-- History -->
+    <section id="view-history" class="view" hidden>
+      <div id="history-list"></div>
+      <div id="history-empty" class="empty" hidden>
+        <p class="empty-title">ยังไม่มีประวัติการเติม</p>
+        <p><a href="#add">บันทึกการเติมครั้งแรก</a></p>
+      </div>
+    </section>
+
+    <!-- Statistics -->
+    <section id="view-stats" class="view" hidden>
+      <div class="segmented" id="range" role="group" aria-label="ช่วงเวลา">
+        <button type="button" data-range="6m">6 เดือน</button>
+        <button type="button" data-range="12m">1 ปี</button>
+        <button type="button" data-range="all">ทั้งหมด</button>
+      </div>
+      <p id="summary-empty" class="empty" hidden>ยังไม่มีข้อมูลในช่วงนี้</p>
+      <div id="summary-body">
+        <div class="card hero">
+          <div class="hero-label">อัตราสิ้นเปลืองเฉลี่ย</div>
+          <div class="hero-value"><span id="hero-value"></span> <span class="unit">กม./ลิตร</span></div>
+          <div class="hero-sub" id="hero-sub"></div>
+        </div>
+        <div class="tiles" id="tiles"></div>
+        <div class="card">
+          <div class="card-head">
+            <h2 class="card-title">กม./ลิตร แต่ละครั้ง</h2>
+            <span class="ref-key" id="kpl-avg-key"></span>
+          </div>
+          <div class="chart" id="chart-kpl"></div>
+        </div>
+        <div class="card">
+          <h2 class="card-title">ค่าน้ำมันรายเดือน (บาท)</h2>
+          <div class="chart" id="chart-monthly"></div>
+        </div>
+        <div class="card">
+          <h2 class="card-title">สรุปรายเดือน</h2>
+          <table id="month-table">
+            <thead>
+              <tr><th scope="col">เดือน</th><th scope="col">กม.</th><th scope="col">ลิตร</th><th scope="col">บาท</th><th scope="col">กม./ลิตร</th></tr>
+            </thead>
+            <tbody></tbody>
+            <tfoot></tfoot>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Settings -->
+    <section id="view-settings" class="view" hidden>
+      <h2 class="section-title">เปิดแอปแล้วไปที่หน้า</h2>
+      <div class="segmented" id="start-view" role="group" aria-label="หน้าเริ่มต้น">
+        <button type="button" data-start="add">เพิ่มรายการ (เร็วสุด)</button>
+        <button type="button" data-start="home">หน้าหลัก</button>
+      </div>
+
+      <h2 class="section-title">สำรองข้อมูล</h2>
+      <div class="group">
+        <button type="button" class="row-btn" id="export-csv">ส่งออกเป็นไฟล์ CSV</button>
+        <button type="button" class="row-btn" id="import-csv">นำเข้าจากไฟล์ CSV</button>
+      </div>
+      <input type="file" id="import-file" class="visually-hidden" accept=".csv,text/csv" tabindex="-1">
+      <p class="footnote">สำรองล่าสุด: <span id="stat-backup"></span><br>ข้อมูลเก็บในเครื่องนี้เท่านั้น ถ้าลบแอปข้อมูลจะหายด้วย ควรส่งออกไว้ใน iCloud Drive เป็นระยะ (ตอนส่งออกเลือก “บันทึกไปยังแอปไฟล์”)</p>
+
+      <h2 class="section-title">นำเข้าจากโน้ตที่จดไว้</h2>
+      <div class="group">
+        <textarea id="paste-text" rows="7" aria-label="ข้อความจากโน้ต" placeholder="วางข้อความที่จดไว้ เช่น&#10;14 ก.ย. 69&#10;685.3 กม.  E20 30.80 ลิตร (34.09 บ./ลิตร)&#10;1,050 บาท (22.25 กม./ลิตร)"></textarea>
+      </div>
+      <button type="button" class="btn" id="paste-import">อ่านข้อความและนำเข้า</button>
+
+      <h2 class="section-title">ข้อมูล</h2>
+      <div class="group">
+        <div class="row"><span>จำนวนรายการ</span><span id="stat-count"></span></div>
+        <div class="row"><span>เวอร์ชัน</span><span id="app-version"></span></div>
+        <button type="button" class="row-btn danger" id="wipe">ลบข้อมูลทั้งหมด</button>
+      </div>
+    </section>
+  </main>
+
+  <nav class="tabbar" aria-label="เมนูหลัก">
+    <a href="#home" data-tab="home">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>
+      <span>หน้าหลัก</span>
+    </a>
+    <a href="#add" data-tab="add">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
+      <span>เพิ่มรายการ</span>
+    </a>
+    <a href="#history" data-tab="history">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+      <span>ประวัติ</span>
+    </a>
+    <a href="#stats" data-tab="stats">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20v-8M12 20V5M19 20v-5M3 20h18"/></svg>
+      <span>สถิติ</span>
+    </a>
+  </nav>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="logic.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
